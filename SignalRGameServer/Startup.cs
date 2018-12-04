@@ -44,7 +44,7 @@ namespace SignalRGameServer
                     {
                         return context.User.Claims;
                     };
-                    options.ConnectionCount = 20;
+                    options.ConnectionCount = Configuration.GetValue<int>("Azure:SignalR:ConnectionCount");
                 });
         }
 
