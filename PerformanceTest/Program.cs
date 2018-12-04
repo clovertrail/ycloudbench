@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using Newtonsoft.Json;
+using SignalRUtils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -37,6 +38,9 @@ namespace PerformanceTest
 
             [Option('U', "UserIdPrfix", Required = false, Default = "", HelpText = "用户id前缀,最长40")]
             public string UserIdPrfix { set; get; } = "";
+
+            [Option('c', "UseCounter", Required = false, Default = 0, HelpText = "Use counter statistic")]
+            public int UseCounter { set; get; }
         }
 
         static void Main(string[] args)
@@ -48,7 +52,7 @@ namespace PerformanceTest
             //    Array.Resize(ref args, args.Length - 1);
             //}
             CommandLine.Parser.Default.ParseArguments<Options>(args)
-                .WithParsed<Options>(options =>
+                .WithParsed<Options>(async (options) =>
                 {
                     Random random = new Random();
 
@@ -90,14 +94,24 @@ namespace PerformanceTest
 
                     ConcurrentBag<Tester> testers = new ConcurrentBag<Tester>();
 
-                    Task.Run(() =>
+                    Counter c = null;
+                    if (options.UseCounter == 1)
+                    {
+                        c = new Counter();
+                    }
+                    else
+                    {
+                        logger.Info("Counter is not set");
+                    }
+
+                    await Task.Run(() =>
                     {
                         logger.Info("start connections");
                         var sw = new Stopwatch();
                         sw.Start();
                         for (int i = 1; i <= options.ThreadCount; i++)
                         {
-                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i)
+                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c)
                             {
                                 AvgCount = options.AvgCount
                             };
@@ -118,8 +132,8 @@ namespace PerformanceTest
                         logger.Info($"Build {options.ThreadCount} connections takes {sw.ElapsedMilliseconds} ms");
                         logger.Info($"Finish startup with {testers.Count} instances");
                     });
-
-                    Task.Run(async () =>
+                    c?.StartPrint();
+                    await Task.Run(async () =>
                     {
                         logger.Info("start sending");
                         byte[] content = new byte[options.Size];
@@ -149,16 +163,16 @@ namespace PerformanceTest
                             if (delay.TotalMilliseconds > 0)
                             {
                                 Thread.Sleep(delay);
-                                logger.Info($"delay {delay} s");
+                                logger.Info($"delay {delay}");
                             }
                         }
                     });
-
-                    Thread.Sleep(int.MaxValue);
+                    c?.Dispose();
                 }).WithNotParsed<Options>(error =>
                         {
                             logger.Error("参数错误");
                         });
+            Thread.Sleep(int.MaxValue);
         }
     }
 }

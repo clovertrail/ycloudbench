@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SignalRUtils;
 
 namespace PerformanceTest
 {
@@ -33,10 +34,14 @@ namespace PerformanceTest
         public int AvgCount { set; get; } = 100;
 
         private DateTimeOffset lastConnectTime = DateTimeOffset.MinValue;
+        private object locker = new object();
 
-        public Tester(string host, string userId = null)
+        private Counter Counter { set; get; }
+
+        public Tester(string host, string userId = null, Counter c = null)
         {
             this.host = host;
+            Counter = c;
             if (string.IsNullOrWhiteSpace(userId))
             {
                 this.userId = Guid.NewGuid().ToString();
@@ -90,30 +95,37 @@ namespace PerformanceTest
             long min = long.MaxValue;
             long max = 0;
             int responseCount = 0;
-            object locker = new object();
+
             connection.On<MessageBody>("PerformanceTest", message =>
             {
                 long delay = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - message.CreatedTime.ToUnixTimeMilliseconds();
-                logger.Debug($"PerformanceTest Result: userId:{userId},delay={delay} ms");
-                lock (locker)
+                //logger.Debug($"PerformanceTest Result: userId:{userId},delay={delay} ms");
+                if (Counter != null)
                 {
-                    totalDelay += delay;
-                    if (delay > max)
+                    Counter.Latency(delay);
+                }
+                else
+                {
+                    lock (locker)
                     {
-                        max = delay;
-                    }
-                    if (delay < min)
-                    {
-                        min = delay;
-                    }
-                    responseCount++;
-                    if (responseCount == AvgCount)
-                    {
-                        logger.Info($"User {userId} latest {AvgCount} perf result min: {min} mx;max: {max} ms;avg: {totalDelay / AvgCount} ms");
-                        responseCount = 0;
-                        min = long.MaxValue;
-                        max = 0;
-                        totalDelay = 0;
+                        totalDelay += delay;
+                        if (delay > max)
+                        {
+                            max = delay;
+                        }
+                        if (delay < min)
+                        {
+                            min = delay;
+                        }
+                        responseCount++;
+                        if (responseCount == AvgCount)
+                        {
+                            logger.Info($"User {userId} latest {AvgCount} perf result min: {min} mx;max: {max} ms;avg: {totalDelay / AvgCount} ms");
+                            responseCount = 0;
+                            min = long.MaxValue;
+                            max = 0;
+                            totalDelay = 0;
+                        }
                     }
                 }
             });
