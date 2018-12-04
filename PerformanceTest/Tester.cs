@@ -64,7 +64,7 @@ namespace PerformanceTest
             lastConnectTime = DateTimeOffset.UtcNow;
 
             (string url, string accessToken) = GetAuth();
-            logger.Info($"response: url: {url}, accessToken: {accessToken}");
+            //logger.Info($"response: url: {url}, accessToken: {accessToken}");
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(accessToken))
             {
                 return;
@@ -109,7 +109,7 @@ namespace PerformanceTest
                     responseCount++;
                     if (responseCount == AvgCount)
                     {
-                        logger.Info($"用户 {userId} 最近{AvgCount}次测试结果 min: {min} mx;max: {max} ms;avg: {totalDelay / AvgCount} ms");
+                        logger.Info($"User {userId} latest {AvgCount} perf result min: {min} mx;max: {max} ms;avg: {totalDelay / AvgCount} ms");
                         responseCount = 0;
                         min = long.MaxValue;
                         max = 0;
@@ -133,13 +133,13 @@ namespace PerformanceTest
         {
             IsConnected = false;
             IsConnecting = false;
-            logger.Error(ex, $"用户 {userId} ConnectionClosed");
+            logger.Error(ex, $"user {userId} ConnectionClosed");
             return connection.DisposeAsync();
         }
 
         private void OnConnected()
         {
-            logger.Info($"用户 {userId} Connected,cost {(DateTimeOffset.UtcNow - lastConnectTime).TotalMilliseconds} ms");
+            logger.Info($"user {userId} Connected,cost {(DateTimeOffset.UtcNow - lastConnectTime).TotalMilliseconds} ms");
             IsConnected = true;
             IsConnecting = false;
         }

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,6 +93,8 @@ namespace PerformanceTest
                     Task.Run(() =>
                     {
                         logger.Info("start connections");
+                        var sw = new Stopwatch();
+                        sw.Start();
                         for (int i = 1; i <= options.ThreadCount; i++)
                         {
                             var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i)
@@ -111,6 +114,8 @@ namespace PerformanceTest
                                 Thread.Sleep(TimeSpan.FromSeconds(1));
                             }
                         }
+                        sw.Stop();
+                        logger.Info($"Build {options.ThreadCount} connections takes {sw.ElapsedMilliseconds} ms");
                         logger.Info($"Finish startup with {testers.Count} instances");
                     });
 
@@ -144,6 +149,7 @@ namespace PerformanceTest
                             if (delay.TotalMilliseconds > 0)
                             {
                                 Thread.Sleep(delay);
+                                logger.Info($"delay {delay} s");
                             }
                         }
                     });
