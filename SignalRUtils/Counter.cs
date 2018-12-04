@@ -80,11 +80,11 @@ namespace SignalRUtils
             float gt1sPercent = (arrCopy[Length - 1]) * 100 / sum;
             var le1fmt = String.Format("{0:F3}", le1sPercent);
             var gt1fmt = String.Format("{0:F3}", gt1sPercent);
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(OutputFile, true))
-            {
-                file.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
-            }
-            //Console.WriteLine($"<=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
+            //using (System.IO.StreamWriter file = new System.IO.StreamWriter(OutputFile, true))
+            //{
+            //    file.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
+            //}
+            Console.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
         }
 
         private void InternalReport()

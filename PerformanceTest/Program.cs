@@ -163,7 +163,7 @@ namespace PerformanceTest
                             if (delay.TotalMilliseconds > 0)
                             {
                                 Thread.Sleep(delay);
-                                logger.Info($"delay {delay}");
+                                //logger.Info($"delay {delay}");
                             }
                         }
                     });
