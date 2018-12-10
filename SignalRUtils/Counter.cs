@@ -19,6 +19,7 @@ namespace SignalRUtils
         private long _totalRecvSize;
         private long _totalSent;
         private long _totalSentSize;
+        private long _connected;
 
         private Timer _timer;
         private long _startPrint;
@@ -54,6 +55,16 @@ namespace SignalRUtils
             Interlocked.Add(ref _totalRecvSize, recvSize);
         }
 
+        public void ConnectionSuccess()
+        {
+            Interlocked.Increment(ref _connected);
+        }
+
+        public void ConnectionFail()
+        {
+            Interlocked.Decrement(ref _connected);
+        }
+
         public void StartPrint()
         {
             if (Interlocked.CompareExchange(ref _startPrint, 1, 0) == 0)
@@ -75,6 +86,7 @@ namespace SignalRUtils
         {
             var arrCopy = new long[Length];
             _latency.CopyTo(arrCopy, 0);
+            var connected = Interlocked.Read(ref _connected);
             long sum = (from x in arrCopy select x).Sum();
             float le1sPercent = (sum - arrCopy[Length - 1]) * 100 / sum;
             float gt1sPercent = (arrCopy[Length - 1]) * 100 / sum;
@@ -84,7 +96,7 @@ namespace SignalRUtils
             //{
             //    file.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
             //}
-            Console.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
+            Console.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: success_connection: {connected}, <=1s: count={sum - arrCopy[Length - 1]} percent={le1fmt}%, >1s: count={arrCopy[Length - 1]} percent={gt1fmt}% ");
         }
 
         private void InternalReport()

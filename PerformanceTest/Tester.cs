@@ -146,6 +146,7 @@ namespace PerformanceTest
             IsConnected = false;
             IsConnecting = false;
             logger.Error(ex, $"user {userId} ConnectionClosed");
+            Counter.ConnectionFail();
             return connection.DisposeAsync();
         }
 
@@ -154,6 +155,7 @@ namespace PerformanceTest
             logger.Info($"user {userId} Connected,cost {(DateTimeOffset.UtcNow - lastConnectTime).TotalMilliseconds} ms");
             IsConnected = true;
             IsConnecting = false;
+            Counter.ConnectionSuccess();
         }
 
         private (string, string) GetAuth()
