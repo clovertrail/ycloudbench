@@ -172,6 +172,7 @@ namespace PerformanceTest
                         }
                     });
                     c?.Dispose();
+                    dc.Dispose();
                 }).WithNotParsed<Options>(error =>
                         {
                             logger.Error("参数错误");
