@@ -133,6 +133,7 @@ namespace PerformanceTest
                         logger.Info($"Finish startup with {testers.Count} instances");
                     });
                     c?.StartPrint();
+                    dc.StartPrint();
                     await Task.Run(() =>
                     {
                         logger.Info("start sending");
