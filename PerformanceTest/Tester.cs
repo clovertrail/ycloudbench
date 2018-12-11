@@ -28,6 +28,8 @@ namespace PerformanceTest
 
         private readonly string userId;
 
+        private long _timestampWhenConnectionClosed;
+
         /// <summary>
         /// 每多少个消息统计一次平均值
         /// </summary>
@@ -38,10 +40,13 @@ namespace PerformanceTest
 
         private Counter Counter { set; get; }
 
-        public Tester(string host, string userId = null, Counter c = null)
+        private DelayCounter DelayCounter { set; get; }
+
+        public Tester(string host, string userId, Counter c, DelayCounter dc)
         {
             this.host = host;
             Counter = c;
+            DelayCounter = dc;
             if (string.IsNullOrWhiteSpace(userId))
             {
                 this.userId = Guid.NewGuid().ToString();
@@ -84,7 +89,6 @@ namespace PerformanceTest
                     options.SkipNegotiation = true;
                     logger.Info("options");
                 })
-                //.AddMessagePackProtocol()
                 .Build();
 
             connection.Closed += ConnectionClosed;
@@ -147,6 +151,7 @@ namespace PerformanceTest
             IsConnecting = false;
             logger.Error(ex, $"user {userId} ConnectionClosed");
             Counter.ConnectionFail();
+            _timestampWhenConnectionClosed = Utils.Timestamp();
             return connection.DisposeAsync();
         }
 
@@ -155,6 +160,12 @@ namespace PerformanceTest
             logger.Info($"user {userId} Connected,cost {(DateTimeOffset.UtcNow - lastConnectTime).TotalMilliseconds} ms");
             IsConnected = true;
             IsConnecting = false;
+            // record the reconnection cost
+            if (_timestampWhenConnectionClosed != 0)
+            {
+                DelayCounter.Add(Utils.Timestamp() - _timestampWhenConnectionClosed);
+                _timestampWhenConnectionClosed = 0;
+            }
             Counter.ConnectionSuccess();
         }
 

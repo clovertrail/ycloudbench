@@ -93,7 +93,7 @@ namespace PerformanceTest
                     }
 
                     ConcurrentBag<Tester> testers = new ConcurrentBag<Tester>();
-
+                    DelayCounter dc = new DelayCounter();
                     Counter c = null;
                     if (options.UseCounter == 1)
                     {
@@ -111,7 +111,7 @@ namespace PerformanceTest
                         sw.Start();
                         for (int i = 1; i <= options.ThreadCount; i++)
                         {
-                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c)
+                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c, dc)
                             {
                                 AvgCount = options.AvgCount
                             };
@@ -133,7 +133,7 @@ namespace PerformanceTest
                         logger.Info($"Finish startup with {testers.Count} instances");
                     });
                     c?.StartPrint();
-                    await Task.Run(async () =>
+                    await Task.Run(() =>
                     {
                         logger.Info("start sending");
                         byte[] content = new byte[options.Size];
@@ -144,6 +144,8 @@ namespace PerformanceTest
                             {
                                 if (!tester.IsConnected)
                                 {
+                                    _ = tester.Connect();
+                                    /*
                                     try
                                     {
                                         await tester.Connect();
@@ -152,6 +154,7 @@ namespace PerformanceTest
                                     {
                                         logger.Error($"Fail to connect for {e}");
                                     }
+                                    */
                                 }
                                 else
                                 {

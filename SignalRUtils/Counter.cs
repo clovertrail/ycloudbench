@@ -58,11 +58,13 @@ namespace SignalRUtils
         public void ConnectionSuccess()
         {
             Interlocked.Increment(ref _connected);
+            _hasRecord = true;
         }
 
         public void ConnectionFail()
         {
             Interlocked.Decrement(ref _connected);
+            _hasRecord = true;
         }
 
         public void StartPrint()
