@@ -36,6 +36,7 @@ namespace PerformanceTest
         public int AvgCount { set; get; } = 100;
 
         private DateTimeOffset lastConnectTime = DateTimeOffset.MinValue;
+
         private object locker = new object();
 
         private Counter Counter { set; get; }
@@ -58,6 +59,17 @@ namespace PerformanceTest
             Connect().Wait();
         }
 
+        private void RandomDelay()
+        {
+            var random = new Random();
+            var s = random.Next(3);
+            var sleep = lastConnectTime.AddSeconds(s) - DateTimeOffset.UtcNow;
+            if (sleep.TotalMilliseconds > 0)
+            {
+                Thread.Sleep(sleep);
+            }
+        }
+
         public async Task Connect()
         {
             if (IsConnected || IsConnecting)
@@ -65,11 +77,8 @@ namespace PerformanceTest
                 return;
             }
             IsConnecting = true;
-            TimeSpan sleep = lastConnectTime.AddSeconds(3) - DateTimeOffset.UtcNow;
-            if (sleep.TotalMilliseconds > 0)
-            {
-                Thread.Sleep(sleep);
-            }
+
+            RandomDelay();
 
             lastConnectTime = DateTimeOffset.UtcNow;
 
