@@ -145,17 +145,7 @@ namespace PerformanceTest
                             {
                                 if (!tester.IsConnected)
                                 {
-                                    _ = tester.Connect();
-                                    /*
-                                    try
-                                    {
-                                        await tester.Connect();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        logger.Error($"Fail to connect for {e}");
-                                    }
-                                    */
+                                    tester.Connect();
                                 }
                                 else
                                 {
