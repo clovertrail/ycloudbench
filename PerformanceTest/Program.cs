@@ -134,7 +134,7 @@ namespace PerformanceTest
                     });
                     c?.StartPrint();
                     dc.StartPrint();
-                    await Task.Run(() =>
+                    await Task.Run(async () =>
                     {
                         logger.Info("start sending");
                         byte[] content = new byte[options.Size];
@@ -145,7 +145,7 @@ namespace PerformanceTest
                             {
                                 if (!tester.IsConnected)
                                 {
-                                    tester.Reconnect();
+                                    await tester.Reconnect();
                                 }
                                 else
                                 {

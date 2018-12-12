@@ -56,10 +56,13 @@ namespace PerformanceTest
             {
                 this.userId = userId;
             }
-            Connect();
+            Task.Run(async () =>
+            {
+                await Connect();
+            });
         }
 
-        public void Connect()
+        public async Task Connect()
         {
             if (IsConnected || IsConnecting)
             {
@@ -137,10 +140,17 @@ namespace PerformanceTest
             });
 
             lastConnectTime = DateTimeOffset.UtcNow;
-            connection.StartAsync();
+            try
+            {
+                await connection.StartAsync();
+            }
+            catch (Exception e)
+            {
+                logger.Error($"Fail to connect: {e.Message}");
+            }
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
             if (IsConnected || IsConnecting)
             {
@@ -148,7 +158,14 @@ namespace PerformanceTest
             }
             IsConnecting = true;
             lastConnectTime = DateTimeOffset.UtcNow;
-            connection.StartAsync();
+            try
+            {
+                await connection.StartAsync();
+            }
+            catch (Exception e)
+            {
+                logger.Error($"Fail to reconnect: {e.Message}");
+            }
         }
 
         private Task ConnectionClosed(Exception ex)
