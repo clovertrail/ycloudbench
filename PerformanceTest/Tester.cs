@@ -140,6 +140,17 @@ namespace PerformanceTest
             connection.StartAsync();
         }
 
+        public void Reconnect()
+        {
+            if (IsConnected || IsConnecting)
+            {
+                return;
+            }
+            IsConnecting = true;
+            lastConnectTime = DateTimeOffset.UtcNow;
+            connection.StartAsync();
+        }
+
         private Task ConnectionClosed(Exception ex)
         {
             IsConnected = false;
@@ -147,7 +158,7 @@ namespace PerformanceTest
             logger.Error(ex, $"user {userId} ConnectionClosed");
             Counter.ConnectionFail();
             _timestampWhenConnectionClosed = Utils.Timestamp();
-            return connection.DisposeAsync();
+            return Task.CompletedTask;//connection.DisposeAsync();
         }
 
         private void OnConnected()
