@@ -59,17 +59,6 @@ namespace PerformanceTest
             Connect();
         }
 
-        private void RandomDelay()
-        {
-            var random = new Random();
-            var s = random.Next(3);
-            var sleep = lastConnectTime.AddSeconds(s) - DateTimeOffset.UtcNow;
-            if (sleep.TotalMilliseconds > 0)
-            {
-                Thread.Sleep(sleep);
-            }
-        }
-
         public void Connect()
         {
             if (IsConnected || IsConnecting)
@@ -78,7 +67,11 @@ namespace PerformanceTest
             }
             IsConnecting = true;
 
-            RandomDelay();
+            TimeSpan sleep = lastConnectTime.AddSeconds(3) - DateTimeOffset.UtcNow;
+            if (sleep.TotalMilliseconds > 0)
+            {
+                Thread.Sleep(sleep);
+            }
 
             lastConnectTime = DateTimeOffset.UtcNow;
 
