@@ -62,6 +62,17 @@ namespace PerformanceTest
             });
         }
 
+        private void RandomDelay()
+        {
+            var random = new Random();
+            var s = random.Next(3000);
+            var sleep = lastConnectTime.AddMilliseconds(s) - DateTimeOffset.UtcNow;
+            if (sleep.TotalMilliseconds > 0)
+            {
+                Thread.Sleep(sleep);
+            }
+        }
+
         public async Task Connect()
         {
             if (IsConnected || IsConnecting)
@@ -69,13 +80,14 @@ namespace PerformanceTest
                 return;
             }
             IsConnecting = true;
-
+            /*
             TimeSpan sleep = lastConnectTime.AddSeconds(3) - DateTimeOffset.UtcNow;
             if (sleep.TotalMilliseconds > 0)
             {
                 Thread.Sleep(sleep);
             }
-
+            */
+            RandomDelay();
             lastConnectTime = DateTimeOffset.UtcNow;
 
             (string url, string accessToken) = GetAuth();
