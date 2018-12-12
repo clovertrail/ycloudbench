@@ -65,7 +65,7 @@ namespace PerformanceTest
         private void RandomDelay()
         {
             var random = new Random();
-            var s = random.Next(3000);
+            var s = random.Next(1000);
             var sleep = lastConnectTime.AddMilliseconds(s) - DateTimeOffset.UtcNow;
             if (sleep.TotalMilliseconds > 0)
             {
