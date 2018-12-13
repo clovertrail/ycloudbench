@@ -125,7 +125,7 @@ namespace PerformanceTest
                                     logger.Info($"start {i} instance");
                                     break;
                                 }
-                                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+                                Thread.Sleep(TimeSpan.FromMilliseconds(100));
                             }
                         }
                         sw.Stop();
