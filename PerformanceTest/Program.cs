@@ -91,7 +91,7 @@ namespace PerformanceTest
                     {
                         options.UserIdPrfix = "user-" + random.Next(1000, 9999);
                     }
-
+                    var httpClient = new HttpClient();
                     ConcurrentBag<Tester> testers = new ConcurrentBag<Tester>();
                     DelayCounter dc = new DelayCounter();
                     Counter c = null;
@@ -111,7 +111,7 @@ namespace PerformanceTest
                         sw.Start();
                         for (int i = 1; i <= options.ThreadCount; i++)
                         {
-                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c, dc)
+                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c, dc, httpClient)
                             {
                                 AvgCount = options.AvgCount
                             };
@@ -163,6 +163,7 @@ namespace PerformanceTest
                     });
                     c?.Dispose();
                     dc.Dispose();
+                    httpClient.Dispose();
                 }).WithNotParsed<Options>(error =>
                         {
                             logger.Error("参数错误");

@@ -27,7 +27,7 @@ namespace PerformanceTest
         private AccessInfo accessInfo;
 
         private readonly string userId;
-
+        private readonly HttpClient _httpClient;
         private long _timestampWhenConnectionClosed;
 
         /// <summary>
@@ -43,9 +43,10 @@ namespace PerformanceTest
 
         private DelayCounter DelayCounter { set; get; }
 
-        public Tester(string host, string userId, Counter c, DelayCounter dc)
+        public Tester(string host, string userId, Counter c, DelayCounter dc, HttpClient httpClient)
         {
             this.host = host;
+            _httpClient = httpClient;
             Counter = c;
             DelayCounter = dc;
             if (string.IsNullOrWhiteSpace(userId))
@@ -87,7 +88,7 @@ namespace PerformanceTest
                 Thread.Sleep(sleep);
             }
             */
-            RandomDelay();
+            //RandomDelay();
             lastConnectTime = DateTimeOffset.UtcNow;
 
             (string url, string accessToken) = GetAuth();
@@ -209,7 +210,7 @@ namespace PerformanceTest
         {
             if (accessInfo == null || accessInfo.TokenExpire < DateTimeOffset.UtcNow.AddSeconds(-10).ToUnixTimeSeconds())
             {
-                string result = new HttpClient().GetStringAsync($"{host}/auth/login?username={userId}&password=admin").GetAwaiter().GetResult();
+                string result = _httpClient.GetStringAsync($"{host}/auth/login?username={userId}&password=admin").GetAwaiter().GetResult();
 
                 if (string.IsNullOrEmpty(result))
                 {
