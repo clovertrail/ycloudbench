@@ -56,7 +56,10 @@ namespace PerformanceTest
             {
                 this.userId = userId;
             }
-            Connect();
+            Task.Run(async () =>
+            {
+                await Connect();
+            });
         }
 
         private void RandomDelay()
@@ -70,7 +73,7 @@ namespace PerformanceTest
             }
         }
 
-        public void Connect()
+        public async Task Connect()
         {
             if (IsConnected || IsConnecting)
             {
@@ -149,8 +152,7 @@ namespace PerformanceTest
             });
 
             lastConnectTime = DateTimeOffset.UtcNow;
-            _ = connection.StartAsync();
-            /*
+
             try
             {
                 await connection.StartAsync();
@@ -159,7 +161,6 @@ namespace PerformanceTest
             {
                 logger.Error($"Fail to connect: {e.Message}");
             }
-            */
         }
 
         public async Task Reconnect()
@@ -187,7 +188,7 @@ namespace PerformanceTest
             logger.Error(ex, $"user {userId} ConnectionClosed");
             Counter.ConnectionFail();
             _timestampWhenConnectionClosed = Utils.Timestamp();
-            return Task.CompletedTask;//connection.DisposeAsync();
+            return connection.DisposeAsync();
         }
 
         private void OnConnected()
