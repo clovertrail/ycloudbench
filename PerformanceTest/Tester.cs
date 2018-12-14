@@ -194,15 +194,22 @@ namespace PerformanceTest
 
         private void OnConnected()
         {
+            // record the reconnection cost
+            long reconnectCost = 0;
+            if (_timestampWhenConnectionClosed != 0)
+            {
+                reconnectCost = Utils.Timestamp() - _timestampWhenConnectionClosed;
+                DelayCounter.Add(reconnectCost);
+                if (reconnectCost > 40000)
+                {
+                    logger.Info($"user {userId} reconnected cost {reconnectCost} ms");
+                }
+                _timestampWhenConnectionClosed = 0;
+            }
             logger.Info($"user {userId} Connected,cost {(DateTimeOffset.UtcNow - lastConnectTime).TotalMilliseconds} ms");
             IsConnected = true;
             IsConnecting = false;
-            // record the reconnection cost
-            if (_timestampWhenConnectionClosed != 0)
-            {
-                DelayCounter.Add(Utils.Timestamp() - _timestampWhenConnectionClosed);
-                _timestampWhenConnectionClosed = 0;
-            }
+
             Counter.ConnectionSuccess();
         }
 

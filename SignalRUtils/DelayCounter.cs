@@ -16,8 +16,6 @@ namespace SignalRUtils
         private long _startPrint;
         private bool _hasRecord;
 
-        private object _lock = new object();
-
         public DelayCounter()
         {
             _delayList = new List<long>();
@@ -54,7 +52,7 @@ namespace SignalRUtils
         private void InternalReportDistribution()
         {
             var arrCopy = new List<long>();
-            lock (_lock)
+            lock (_delayList)
             {
                 arrCopy.AddRange(_delayList);
             }
