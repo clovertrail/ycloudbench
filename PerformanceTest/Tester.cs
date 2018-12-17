@@ -89,7 +89,7 @@ namespace PerformanceTest
             }
             */
             //RandomDelay();
-            lastConnectTime = DateTimeOffset.UtcNow;
+            //lastConnectTime = DateTimeOffset.UtcNow;
 
             (string url, string accessToken) = GetAuth();
             //logger.Info($"response: url: {url}, accessToken: {accessToken}");
@@ -160,7 +160,7 @@ namespace PerformanceTest
             }
             catch (Exception e)
             {
-                logger.Error($"Fail to connect: {e.Message}");
+                logger.Error($"User {userId} fails to connect: {e.Message}");
             }
         }
 
@@ -172,13 +172,24 @@ namespace PerformanceTest
             }
             IsConnecting = true;
             lastConnectTime = DateTimeOffset.UtcNow;
-            try
+            var retry = 10;
+            var i = 0;
+            while (i < retry)
             {
-                await connection.StartAsync();
-            }
-            catch (Exception e)
-            {
-                logger.Error($"Fail to reconnect: {e.Message}");
+                try
+                {
+                    await connection.StartAsync();
+                    break;
+                }
+                catch (Exception e)
+                {
+                    logger.Error($"User {userId} fails to reconnect: {e.Message}");
+                    if (i + 1 < retry)
+                    {
+                        logger.Error($"Retry reconnect");
+                        RandomDelay();
+                    }
+                }
             }
         }
 

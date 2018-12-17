@@ -7,8 +7,9 @@ namespace SignalRUtils
 {
     public class DelayCounter : IDisposable
     {
+        private readonly static string DEFAULT_OUTPUT_FILE = "DelayCounters.txt";
         private static readonly TimeSpan Interval = TimeSpan.FromSeconds(1);
-        private readonly static string OutputFile = "DelayCounters.txt";
+        private readonly string OutputFile;
 
         private List<long> _delayList;
 
@@ -16,8 +17,9 @@ namespace SignalRUtils
         private long _startPrint;
         private bool _hasRecord;
 
-        public DelayCounter()
+        public DelayCounter(string outputFile = null)
         {
+            OutputFile = outputFile != null ? outputFile : DEFAULT_OUTPUT_FILE;
             _delayList = new List<long>();
         }
 

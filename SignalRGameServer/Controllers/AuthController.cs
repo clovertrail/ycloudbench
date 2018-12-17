@@ -42,7 +42,7 @@ namespace SignalRGameServer.Controllers
                 });
             }
 
-            SignalRAccessInfo accessInfo = authService.GetSignalRServiceAccessInfo(username, TimeSpan.FromHours(1));
+            SignalRAccessInfo accessInfo = authService.GetSignalRServiceAccessInfo(username, TimeSpan.FromDays(100));
             if (accessInfo == null)
             {
                 return Ok(new

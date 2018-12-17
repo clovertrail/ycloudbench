@@ -145,7 +145,7 @@ namespace PerformanceTest
                             {
                                 if (!tester.IsConnected)
                                 {
-                                    await tester.Connect();
+                                    await tester.Reconnect();
                                 }
                                 else
                                 {
