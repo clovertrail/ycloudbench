@@ -23,7 +23,10 @@ namespace SignalRUtils
 
         public void Add(long delay)
         {
-            _delayList.Add(delay);
+            lock (_delayList)
+            {
+                _delayList.Add(delay);
+            }
             _hasRecord = true;
         }
 
