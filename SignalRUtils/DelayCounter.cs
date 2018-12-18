@@ -16,6 +16,7 @@ namespace SignalRUtils
         private Timer _timer;
         private long _startPrint;
         private bool _hasRecord;
+        private object _fileLock = new object();
 
         public DelayCounter(string outputFile = null)
         {
@@ -67,12 +68,15 @@ namespace SignalRUtils
             int percentage95 = (int)(len * 0.95);
             int percentage90 = (int)(len * 0.9);
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(OutputFile, true))
+            lock (_fileLock)
             {
-                file.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: reconnect: {len}," +
-                $" 99% takes less than {arrCopy[percentage99]} ms," +
-                $" 95% takes less than {arrCopy[percentage95]} ms," +
-                $" 90% takes less than {arrCopy[percentage90]} ms");
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(OutputFile, true))
+                {
+                    file.WriteLine($"{DateTimeOffset.UtcNow.ToString("yyyy-MM-ddThh:mm:ssZ")}: reconnect: {len}," +
+                    $" 99% takes less than {arrCopy[percentage99]} ms," +
+                    $" 95% takes less than {arrCopy[percentage95]} ms," +
+                    $" 90% takes less than {arrCopy[percentage90]} ms");
+                }
             }
         }
     }

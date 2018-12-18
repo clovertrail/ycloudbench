@@ -94,6 +94,7 @@ namespace PerformanceTest
                     var httpClient = new HttpClient();
                     ConcurrentBag<Tester> testers = new ConcurrentBag<Tester>();
                     DelayCounter dc = new DelayCounter();
+                    DelayCounter counter4PrepareConnect = new DelayCounter("PrepareConnectCounter.txt");
                     Counter c = null;
                     if (options.UseCounter == 1)
                     {
@@ -111,7 +112,7 @@ namespace PerformanceTest
                         sw.Start();
                         for (int i = 1; i <= options.ThreadCount; i++)
                         {
-                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c, dc, httpClient)
+                            var tester = new Tester(options.Url, options.UserIdPrfix + "_" + i, c, dc, counter4PrepareConnect, httpClient)
                             {
                                 AvgCount = options.AvgCount
                             };
@@ -134,6 +135,7 @@ namespace PerformanceTest
                     });
                     c?.StartPrint();
                     dc.StartPrint();
+                    counter4PrepareConnect.StartPrint();
                     await Task.Run(async () =>
                     {
                         logger.Info("start sending");
@@ -145,7 +147,7 @@ namespace PerformanceTest
                             {
                                 if (!tester.IsConnected)
                                 {
-                                    await tester.Reconnect();
+                                    await tester.Connect();
                                 }
                                 else
                                 {

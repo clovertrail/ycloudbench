@@ -29,7 +29,7 @@ namespace PerformanceTest
         private readonly string userId;
         private readonly HttpClient _httpClient;
         private long _timestampWhenConnectionClosed;
-
+        private long _timestampBeforeAuth;
         /// <summary>
         /// 每多少个消息统计一次平均值
         /// </summary>
@@ -43,12 +43,15 @@ namespace PerformanceTest
 
         private DelayCounter DelayCounter { set; get; }
 
-        public Tester(string host, string userId, Counter c, DelayCounter dc, HttpClient httpClient)
+        private DelayCounter PrepareConnectCounter { set; get; }
+
+        public Tester(string host, string userId, Counter c, DelayCounter dc, DelayCounter prepareConnectCounter, HttpClient httpClient)
         {
             this.host = host;
             _httpClient = httpClient;
             Counter = c;
             DelayCounter = dc;
+            PrepareConnectCounter = prepareConnectCounter;
             if (string.IsNullOrWhiteSpace(userId))
             {
                 this.userId = Guid.NewGuid().ToString();
@@ -90,6 +93,7 @@ namespace PerformanceTest
             */
             //RandomDelay();
             //lastConnectTime = DateTimeOffset.UtcNow;
+            _timestampBeforeAuth = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             (string url, string accessToken) = GetAuth();
             //logger.Info($"response: url: {url}, accessToken: {accessToken}");
@@ -151,7 +155,7 @@ namespace PerformanceTest
                     }
                 }
             });
-
+            PrepareConnectCounter.Add(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()- _timestampBeforeAuth);
             lastConnectTime = DateTimeOffset.UtcNow;
 
             try
